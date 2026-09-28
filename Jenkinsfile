@@ -10,7 +10,7 @@ pipeline {
         DOCKER_IMAGE_TAG = "${BUILD_NUMBER}"
         AWS_CREDENTIALS = credentials('aws-credentials')
         GITHUB_CREDENTIALS = credentials('github-credentials')
-        GIT_BRANCH = "tf-DevOps"
+        GIT_BRANCH = "main"
     }
     
     stages {
