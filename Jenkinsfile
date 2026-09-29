@@ -8,7 +8,7 @@ pipeline {
         DOCKER_IMAGE_NAME = 'manishvishwa801/easyshop-dhi'
         DOCKER_MIGRATION_IMAGE_NAME = 'manishvishwa801/easyshop-migration'
         DOCKER_IMAGE_TAG = "${BUILD_NUMBER}"
-        GITHUB_CREDENTIALS = credentials('github-credentials')
+        GITHUB_CREDENTIALS = credentials('github-creditentials')
         GIT_BRANCH = "master"
     }
     
@@ -86,7 +86,7 @@ pipeline {
                             docker_push(
                                 imageName: env.DOCKER_IMAGE_NAME,
                                 imageTag: env.DOCKER_IMAGE_TAG,
-                                credentials: 'dockerhub-credentials'
+                                credentials: 'docker-creditentials'
                             )
                         }
                     }
@@ -98,7 +98,7 @@ pipeline {
                             docker_push(
                                 imageName: env.DOCKER_MIGRATION_IMAGE_NAME,
                                 imageTag: env.DOCKER_IMAGE_TAG,
-                                credentials: 'dockerhub-credentials'
+                                credentials: 'docker-creditentials'
                             )
                         }
                     }
@@ -113,7 +113,7 @@ pipeline {
                     update_k8s_manifests(
                         imageTag: env.DOCKER_IMAGE_TAG,
                         manifestsPath: 'kubernetes',
-                        gitCredentials: 'github-credentials',
+                        gitCredentials: 'github-creditentials',
                         gitUserName: 'Jenkins CI',
                         gitUserEmail: 'manish.kumar.v@ramanujan.du.acin'
                     )
