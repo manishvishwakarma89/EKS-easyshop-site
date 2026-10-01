@@ -1,12 +1,13 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: mondodb-pvc
+  name: mongodb-pvc
   namespace: easyshop
 spec:
+  storageClassName: ""
+  volumeName: mongodb-pv
   accessModes:
-    - RewriteOnce
+    - ReadWriteOnce
   resources:
     requests:
-      storage: 5Gi
-
+      storage: 2Gi

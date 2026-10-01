@@ -4,10 +4,9 @@ metadata:
   name: easyshop-config
   namespace: easyshop
 data:
-  MONGODB_URI: "mongodb://mongodb-0.mongodb-service.easyshop.svc.cluster.local:27017/easyshop"
-  REDIS_URI: "redis://easyshop-redis.easyshop.svc.cluster.local:6379"
+  MONGODB_URI: "mongodb://mongodb-service:27017/easyshop"
   NODE_ENV: "production"
-  NEXT_PUBLIC_API_URL: "https://easyshop.letsdeployit.com/api" 
-  NEXTAUTH_URL: "https://easyshop.letsdeployit.com"  
-  NEXTAUTH_SECRET: "HmaFjYZ2jbUK7Ef+wZrBiJei4ZNGBAJ5IdiOGAyQegw="
-  JWT_SECRET: "e5e425764a34a2117ec2028bd53d6f1388e7b90aeae9fa7735f2469ea3a6cc8c"
+  NEXT_PUBLIC_API_URL: "http://3.137.138.22/api"  # Replace with your YOUR_EC2_PUBLIC_IP
+  NEXTAUTH_URL: "http://3.137.138.22"             # Replace with your YOUR_EC2_PUBLIC_IP
+  NEXTAUTH_SECRET: "gk5m3dM2tkEqq1PxjKBe481zabi1zQGLIcZJMHXXYRc="
+  JWT_SECRET: "572f1f6d0373d6af5f469269907549667cf6e2d8c9f6f6758dbca7340919c6ba"
