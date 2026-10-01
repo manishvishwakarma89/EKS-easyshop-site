@@ -1,35 +1,35 @@
-locals {
+variable "aws_region" {
+  description = "AWS region for EKS cluster"
+  type        = string
+  default     = "us-west-2"
+}
 
-  region          = "us-east-2"
-  environment     = "dev"
-  tags = {
-    Name          = "easyshop"
-    Environment   = "dev"
-    Terraform     = "true"
-  }
+variable "cluster_name" {
+  description = "Name of the EKS cluster"
+  type        = string
+  default     = "easyshop-eks"
+}
 
-  # VPC Variables
-  vpc_name        = "easyshop"
-  vpc_cidr        = "10.0.0.0/16"
-  azs             = ["us-east-2a", "us-east-2b"]
-  public_subnets  = ["10.0.1.0/24", "10.0.2.0/24"]
-  private_subnets = ["10.0.3.0/24", "10.0.4.0/24"]
-  intra_subnets   = ["10.0.5.0/24", "10.0.6.0/24"]
+variable "cluster_version" {
+  description = "Kubernetes version for EKS"
+  type        = string
+  default     = "1.35"
+}
 
-  # EKS Variables
-  cluster_name    = "easyshop-cluster"
-  cluster_version = "1.29"
-  eks_addon_versions = {
-    coredns = "v1.11.1-eksbuild.4"
-    kube-proxy = "v1.29.2-eksbuild.1"
-    vpc-cni = "v1.16.0-eksbuild.1"
-    aws-ebs-csi-driver = "v1.29.0-eksbuild.1"
-  }
+variable "node_instance_type" {
+  description = "EC2 instance type for EKS worker nodes"
+  type        = string
+  default     = "t3.medium"
+}
 
-  # Security Group Variables
-  sg_name = "easyshop-sg"
+variable "node_desired_count" {
+  description = "Desired number of worker nodes"
+  type        = number
+  default     = 3
+}
 
-  # Bastion Variables
-  key_name      = "easyshop"
-  instance_type = "t3.large"
+variable "node_max_count" {
+  description = "Maximum number of worker nodes"
+  type        = number
+  default     = 5
 }
