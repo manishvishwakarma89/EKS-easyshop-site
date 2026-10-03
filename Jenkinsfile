@@ -1,37 +1,22 @@
-@Library('EasyShop-jenkins-shared-lib@main') _
+@Library('Shared') _
 
 pipeline {
     agent any
     
     environment {
         // Update the main app image name to match the deployment file
-        DOCKER_IMAGE_NAME = 'iemafzal/easyshop-app'
-        DOCKER_MIGRATION_IMAGE_NAME = 'iemafzal/easyshop-migration'
+        DOCKER_IMAGE_NAME = 'manishvishwa801/easyshop-dhi'
+        DOCKER_MIGRATION_IMAGE_NAME = 'manishvishwa801/easyshop-migration'
         DOCKER_IMAGE_TAG = "${BUILD_NUMBER}"
-        AWS_CREDENTIALS = credentials('aws-credentials')
         GITHUB_CREDENTIALS = credentials('github-credentials')
-        GIT_BRANCH = "tf-DevOps"
+        GIT_BRANCH = "feat/hackathon"
     }
     
     stages {
-        stage('Check for CI Skip') {
-            steps {
-                script {
-                    def commitMessage = sh(script: 'git log -1 --pretty=%B', returnStdout: true).trim()
-                    echo "Commit message: ${commitMessage}"
-                    if (commitMessage.contains('[ci skip]') || commitMessage.contains('[skip ci]')) {
-                        echo "Found CI skip directive in commit message, aborting build"
-                        currentBuild.result = 'ABORTED'
-                        error("Build skipped due to [ci skip] directive")
-                    }
-                }
-            }
-        }
-        
         stage('Cleanup Workspace') {
             steps {
                 script {
-                    cleanupWorkspace()
+                    clean_ws()
                 }
             }
         }
@@ -39,7 +24,7 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 script {
-                    checkoutRepo()
+                    clone("https://github.com/manishvishwakarma89/EKS-easyshop-site","feat/hackathon")
                 }
             }
         }
@@ -49,7 +34,7 @@ pipeline {
                 stage('Build Main App Image') {
                     steps {
                         script {
-                            buildDockerImage(
+                            docker_build(
                                 imageName: env.DOCKER_IMAGE_NAME,
                                 imageTag: env.DOCKER_IMAGE_TAG,
                                 dockerfile: 'Dockerfile',
@@ -62,7 +47,7 @@ pipeline {
                 stage('Build Migration Image') {
                     steps {
                         script {
-                            buildDockerImage(
+                            docker_build(
                                 imageName: env.DOCKER_MIGRATION_IMAGE_NAME,
                                 imageTag: env.DOCKER_IMAGE_TAG,
                                 dockerfile: 'scripts/Dockerfile.migration',
@@ -77,7 +62,7 @@ pipeline {
         stage('Run Unit Tests') {
             steps {
                 script {
-                    runUnitTests()
+                    run_tests()
                 }
             }
         }
@@ -86,29 +71,9 @@ pipeline {
             steps {
                 script {
                     // Create directory for results
-                    sh "mkdir -p trivy-results"
+                  
+                    trivy_scan()
                     
-                    // Run scans sequentially to avoid conflicts
-                    echo "Scanning main application image..."
-                    trivyScan(
-                        imageName: env.DOCKER_IMAGE_NAME,
-                        imageTag: env.DOCKER_IMAGE_TAG,
-                        threshold: 150,
-                        severity: 'HIGH,CRITICAL'
-                    )
-                    
-                    echo "Scanning migration image..."
-                    trivyScan(
-                        imageName: env.DOCKER_MIGRATION_IMAGE_NAME,
-                        imageTag: env.DOCKER_IMAGE_TAG,
-                        threshold: 150,
-                        severity: 'HIGH,CRITICAL'
-                    )
-                }
-            }
-            post {
-                always {
-                    archiveArtifacts artifacts: 'trivy-results/*.json,trivy-results/*.html', allowEmptyArchive: true
                 }
             }
         }
@@ -118,7 +83,7 @@ pipeline {
                 stage('Push Main App Image') {
                     steps {
                         script {
-                            pushDockerImage(
+                            docker_push(
                                 imageName: env.DOCKER_IMAGE_NAME,
                                 imageTag: env.DOCKER_IMAGE_TAG,
                                 credentials: 'docker-hub-credentials'
@@ -130,7 +95,7 @@ pipeline {
                 stage('Push Migration Image') {
                     steps {
                         script {
-                            pushDockerImage(
+                            docker_push(
                                 imageName: env.DOCKER_MIGRATION_IMAGE_NAME,
                                 imageTag: env.DOCKER_IMAGE_TAG,
                                 credentials: 'docker-hub-credentials'
@@ -145,26 +110,14 @@ pipeline {
         stage('Update Kubernetes Manifests') {
             steps {
                 script {
-                    updateK8sManifests(
+                    update_k8s_manifests(
                         imageTag: env.DOCKER_IMAGE_TAG,
                         manifestsPath: 'kubernetes',
                         gitCredentials: 'github-credentials',
                         gitUserName: 'Jenkins CI',
-                        gitUserEmail: 'iemafzalhassan@gmail.com'
+                        gitUserEmail: 'manish.kumar.v@ramanujan.du.ac.in'
                     )
                 }
-            }
-        }
-    }
-    
-    post {
-        always {
-            script {
-                generateReport(
-                    projectName: 'EasyShop',
-                    imageName: "${env.DOCKER_IMAGE_NAME}, ${env.DOCKER_MIGRATION_IMAGE_NAME}",
-                    imageTag: env.DOCKER_IMAGE_TAG
-                )
             }
         }
     }
